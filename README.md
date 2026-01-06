@@ -1,317 +1,436 @@
-<p align="center">
-  <img src="assets/figures/morphollm_logo.png" alt="MorphoLLM Logo" width="400"/>
-</p>
+<div align="center">
 
-<h1 align="center">MorphoLLM</h1>
+# 🤖 MorphoLLM
 
-<p align="center">
-  <strong>Language-Guided Morphological Trajectory Synthesis for Adaptive Robotic Manipulators</strong>
-</p>
+### Language-to-Morphology Translation for Generative Robotic Manipulator Design
 
-<p align="center">
-  <a href="https://www.python.org/downloads/"><img src="https://img.shields.io/badge/python-3.9%2B-blue.svg" alt="Python 3.9+"></a>
-  <a href="https://pytorch.org/"><img src="https://img.shields.io/badge/PyTorch-2.0%2B-red.svg" alt="PyTorch 2.0+"></a>
-  <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-green.svg" alt="License: MIT"></a>
-  <a href="https://arxiv.org/abs/XXXX.XXXXX"><img src="https://img.shields.io/badge/arXiv-XXXX.XXXXX-b31b1b.svg" alt="arXiv"></a>
-</p>
+[![Python 3.9+](https://img.shields.io/badge/Python-3.9%2B-blue.svg)](https://www.python.org/downloads/)
+[![PyTorch 2.0+](https://img.shields.io/badge/PyTorch-2.0%2B-red.svg)](https://pytorch.org/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
+[![Research](https://img.shields.io/badge/Status-Active%20Research-orange.svg)]()
 
-<p align="center">
-  <a href="#-key-features">Key Features</a> •
-  <a href="#-installation">Installation</a> •
-  <a href="#-quick-start">Quick Start</a> •
-  <a href="#-documentation">Documentation</a> •
-  <a href="#-citation">Citation</a>
-</p>
+**Bridging Natural Language Understanding and Physical Robot Morphology Generation**
+
+[Overview](#-overview) • [Key Contributions](#-key-contributions) • [Installation](#-installation) • [Quick Start](#-quick-start) • [Architecture](#-architecture) • [Citation](#-citation)
+
+</div>
+
+---
+
+## 🔬 Research Context
+
+**The Problem:** Designing robotic manipulators traditionally requires extensive engineering expertise, iterative prototyping, and manual optimization. While Large Language Models (LLMs) have shown remarkable capabilities in reasoning and code generation, they have not been effectively leveraged for *physical robot design*—a domain requiring understanding of kinematics, dynamics, workspace requirements, and manufacturing constraints.
+
+**Our Solution:** MorphoLLM introduces a framework that translates natural language task descriptions into optimized manipulator morphologies. By treating robot design as a language-to-structure translation problem, we enable non-experts to generate functional manipulator designs through intuitive descriptions like *"a robot arm for precise electronic assembly with 50cm reach."*
 
 ---
 
 ## 🎯 Overview
 
-**MorphoLLM** is a paradigm-shifting framework that reconceptualizes robotic manipulator morphology as a **continuous control variable** adaptable in real-time through LLM semantic reasoning. Unlike traditional approaches that fix morphology before deployment, MorphoLLM enables manipulators to reshape themselves dynamically based on task requirements.
+MorphoLLM addresses the gap between language understanding and physical robot design. Current approaches to manipulator design either require deep engineering expertise or produce generic solutions that don't adapt to specific task requirements. 
 
-<p align="center">
-  <img src="assets/figures/paradigm_shift.png" alt="Paradigm Shift" width="800"/>
-</p>
+This framework introduces:
 
-### The Paradigm Shift
+| Component | Description |
+|-----------|-------------|
+| **L2MT Module** | Language-to-Morphology Translation using LLM-guided design generation |
+| **Physics-Aware Generator** | Ensures generated designs satisfy physical constraints (torque limits, workspace, reachability) |
+| **SM-MPC Controller** | Shape-Memory Model Predictive Control for morphology-aware trajectory execution |
+| **Continuous Morphology Space** | Differentiable representation enabling gradient-based optimization |
 
-| Traditional Approach | MorphoLLM Approach |
-|---------------------|-------------------|
-| Design → Fabricate → Deploy (Fixed) | Design → Deploy → **Adapt Continuously** |
-| Morphology is a parameter | Morphology is a **control variable** |
-| One robot per task type | One robot, **infinite configurations** |
+---
 
-## ✨ Key Features
+## 🌟 Key Contributions
 
-- **Extended Configuration Space** ($\mathcal{C}_{ext} = \mathcal{C} \times \mathcal{M}$): Unified mathematical framework for joint-morphology trajectories
-- **Language-to-Morphology-Trajectory (L2MT)**: Generate time-varying morphology specifications from natural language
-- **Semantic Morphological MPC (SM-MPC)**: Real-time optimal control with stability guarantees
-- **Differentiable Physics Integration**: Compatible with DiffTaichi, JAX, and PyTorch differentiable simulators
-- **LLM Backend Flexibility**: Supports GPT-4, Claude, LLaMA, and local models
+### 1. Language-to-Morphology Translation (L2MT)
+
+Transform natural language specifications into morphological parameters:
+
+```
+"A 6-DOF arm for welding with 1.2m reach and high payload"
+                    ↓
+    [link_lengths, joint_types, actuator_specs, ...]
+```
+
+### 2. Physics-Aware Semantic Generator
+
+Ensures generated designs are physically realizable:
+
+- **Kinematic Feasibility:** Workspace coverage, singularity avoidance
+- **Dynamic Constraints:** Torque limits, inertia management
+- **Manufacturing Viability:** Standard components, assembly constraints
+
+### 3. Morphology as Continuous Control Variable
+
+Unlike discrete design choices, we represent morphology in a continuous, differentiable space:
+
+```
+α ∈ ℳ ⊂ ℝⁿ  where  ℳ = {α : g(α) ≥ 0}
+```
+
+Enabling gradient-based optimization of physical structure alongside control.
+
+### 4. Shape-Memory MPC (SM-MPC)
+
+Control framework that maintains awareness of morphological state:
+
+```
+min  Σₖ ||xₖ - xᵣₑf||²_Q + ||uₖ||²_R + ||Δαₖ||²_S
+s.t. xₖ₊₁ = f(xₖ, uₖ, αₖ)
+     α ∈ ℳ_feasible
+```
+
+---
 
 ## 📦 Installation
 
 ### Prerequisites
 
-- Python 3.9+
-- PyTorch 2.0+
-- CUDA 11.8+ (for GPU acceleration)
+- Python 3.9 or higher
+- PyTorch 2.0 or higher
+- Git
 
-### From PyPI (Recommended)
+### Setup (PowerShell)
 
-```bash
-pip install morphollm
-```
-
-### From Source
-
-```bash
+```powershell
+# Clone the repository
 git clone https://github.com/hmshujaatzaheer/MorphoLLM.git
+
+# Navigate to directory
 cd MorphoLLM
-pip install -e ".[dev]"
+
+# Create virtual environment
+python -m venv venv
+
+# Activate virtual environment
+.\venv\Scripts\Activate.ps1
+
+# Install PyTorch (CPU version - for GPU see pytorch.org)
+pip install torch torchvision
+
+# Install the package
+pip install -e .
+
+# Verify installation
+python -c "import morphollm; print(f'MorphoLLM v{morphollm.__version__} installed successfully')"
 ```
 
-### With Conda
+### Quick Install (PowerShell)
 
-```bash
-conda create -n morphollm python=3.10
-conda activate morphollm
-pip install morphollm
+```powershell
+git clone https://github.com/hmshujaatzaheer/MorphoLLM.git; cd MorphoLLM; pip install torch; pip install -e .
 ```
+
+---
 
 ## 🚀 Quick Start
 
-### Basic L2MT Example
+### Basic Language-to-Morphology Translation
 
 ```python
-from morphollm import L2MT, MorphologySpace
-from morphollm.models import SemanticParser
+from morphollm import L2MTModule, MorphologyGenerator
 
-# Initialize the L2MT algorithm
-l2mt = L2MT(
-    morphology_space=MorphologySpace(dim=12),
-    llm_backend="gpt-4",
-    physics_validator=True
-)
+# Initialize the L2MT module
+l2mt = L2MTModule()
 
-# Generate morphology trajectory from task description
-task = "Pick up the fragile glass vase and place it gently on the shelf"
-morph_trajectory = l2mt.generate(
-    task_description=task,
-    initial_morphology=robot.current_morphology,
-    horizon=100  # timesteps
-)
+# Natural language task description
+task_description = """
+Design a robotic manipulator for precision electronics assembly.
+Requirements:
+- Reach: 50cm workspace radius
+- Payload: 500g maximum
+- Precision: 0.1mm repeatability
+- Environment: Clean room compatible
+"""
 
-# Visualize the trajectory
-l2mt.visualize(morph_trajectory, save_path="output/trajectory.mp4")
+# Generate morphology from description
+morphology = l2mt.translate(task_description)
+
+print(f"Generated {morphology.num_joints}-DOF manipulator")
+print(f"Link lengths: {morphology.link_lengths}")
+print(f"Joint types: {morphology.joint_types}")
+print(f"Estimated workspace: {morphology.workspace_volume:.3f} m³")
 ```
 
-### SM-MPC Control Loop
+### Physics-Aware Design Generation
 
 ```python
-from morphollm import SMMPC, ExtendedConfigSpace
-from morphollm.physics import ManipulatorDynamics
+from morphollm import PhysicsAwareGenerator
+from morphollm.core import TaskSpecification, PhysicsConstraints
 
-# Create extended configuration space
-C_ext = ExtendedConfigSpace(
-    joint_dim=7,      # 7-DOF manipulator
-    morphology_dim=12  # 12 morphology parameters
+# Define task specification
+task_spec = TaskSpecification(
+    workspace_radius=0.5,      # meters
+    payload_mass=0.5,          # kg
+    precision=0.0001,          # meters
+    num_dof=6
 )
 
-# Initialize SM-MPC controller
-controller = SMMPC(
-    config_space=C_ext,
-    dynamics=ManipulatorDynamics(),
-    horizon=20,
-    morphology_rate_limit=0.1
+# Define physics constraints
+constraints = PhysicsConstraints(
+    max_joint_torque=50.0,     # Nm
+    max_joint_velocity=3.14,   # rad/s
+    gravity=9.81               # m/s²
 )
 
-# Control loop with semantic adaptation
-while not task_complete:
-    # Get current state and perception
-    state = robot.get_extended_state()
-    perception = camera.get_observation()
-    
-    # Compute optimal control with morphology adaptation
-    u_ext = controller.compute(
-        state=state,
-        reference=morph_trajectory,
-        perception=perception,
-        semantic_context="Object appears more fragile than expected"
-    )
-    
-    # Apply control (joint velocities + morphology rates)
-    robot.apply_extended_control(u_ext)
+# Generate physically-valid design
+generator = PhysicsAwareGenerator(constraints)
+design = generator.generate(task_spec)
+
+# Validate design
+validation = design.validate()
+print(f"Design valid: {validation.is_valid}")
+print(f"Workspace coverage: {validation.workspace_coverage:.1%}")
+print(f"Max required torque: {validation.max_torque:.2f} Nm")
 ```
 
-### Full Pipeline Demo
+### Shape-Memory MPC Control
 
 ```python
-from morphollm import MorphoLLMPipeline
+import numpy as np
+from morphollm import SMMPCController
+from morphollm.core import ManipulatorState
 
-# One-line initialization
-pipeline = MorphoLLMPipeline.from_pretrained("morphollm-base")
-
-# End-to-end task execution
-result = pipeline.execute(
-    task="Assemble the electronic component into the narrow slot",
-    robot=my_robot,
-    workspace=my_workspace,
-    visualize=True
+# Initialize controller with morphology awareness
+controller = SMMPCController(
+    prediction_horizon=20,
+    control_dt=0.01,
+    morphology_weight=0.1
 )
 
-print(f"Task success: {result.success}")
-print(f"Morphology adaptations: {result.num_adaptations}")
+# Current state
+current_state = ManipulatorState(
+    joint_positions=np.zeros(6),
+    joint_velocities=np.zeros(6),
+    morphology=design.morphology
+)
+
+# Target pose
+target_pose = np.array([0.3, 0.2, 0.4, 0, 0, 0])  # [x, y, z, roll, pitch, yaw]
+
+# Compute optimal control with morphology awareness
+control_action = controller.compute(current_state, target_pose)
+
+print(f"Joint torques: {control_action.torques}")
+print(f"Morphology adjustment: {control_action.morphology_delta}")
 ```
 
-## 📖 Documentation
-
-| Document | Description |
-|----------|-------------|
-| [Installation Guide](docs/installation.md) | Detailed setup instructions |
-| [Quick Start Tutorial](docs/quickstart.md) | Step-by-step introduction |
-| [API Reference](docs/api_reference.md) | Complete API documentation |
-| [Theory & Algorithms](docs/theory.md) | Mathematical foundations |
-| [Examples Gallery](examples/) | Comprehensive code examples |
+---
 
 ## 🏗️ Architecture
 
 ```
-┌─────────────────────────────────────────────────────────────────┐
-│                     MorphoLLM Framework                         │
-├─────────────────────────────────────────────────────────────────┤
-│  ┌─────────────┐  ┌─────────────┐  ┌─────────────────────────┐ │
-│  │   Natural   │  │   Visual    │  │    Force/Tactile        │ │
-│  │  Language   │  │ Perception  │  │      Feedback           │ │
-│  └──────┬──────┘  └──────┬──────┘  └───────────┬─────────────┘ │
-│         │                │                      │               │
-│         ▼                ▼                      ▼               │
-│  ┌──────────────────────────────────────────────────────────┐  │
-│  │              LLM Semantic Reasoning Engine               │  │
-│  │  ┌────────────┐  ┌────────────┐  ┌────────────────────┐ │  │
-│  │  │  L2MT      │  │  Task      │  │  Semantic          │ │  │
-│  │  │ Algorithm  │  │ Decompose  │  │  Adaptation        │ │  │
-│  │  └────────────┘  └────────────┘  └────────────────────┘ │  │
-│  └──────────────────────────────────────────────────────────┘  │
-│                              │                                  │
-│         ┌────────────────────┼────────────────────┐            │
-│         ▼                    ▼                    ▼            │
-│  ┌────────────┐      ┌────────────┐      ┌────────────┐       │
-│  │ Morphology │      │Differentiable│    │ Workspace  │       │
-│  │  Dynamics  │      │ Simulation  │      │ Analysis   │       │
-│  └────────────┘      └────────────┘      └────────────┘       │
-│         │                    │                    │            │
-│         └────────────────────┼────────────────────┘            │
-│                              ▼                                  │
-│  ┌──────────────────────────────────────────────────────────┐  │
-│  │                    SM-MPC Controller                     │  │
-│  │         Joint Trajectory + Morphology Trajectory         │  │
-│  └──────────────────────────────────────────────────────────┘  │
-│                              │                                  │
-│                              ▼                                  │
-│  ┌──────────────────────────────────────────────────────────┐  │
-│  │              Reconfigurable Manipulator                  │  │
-│  │                    (q(t), m(t))                          │  │
-│  └──────────────────────────────────────────────────────────┘  │
-└─────────────────────────────────────────────────────────────────┘
-```
-
-## 🧪 Benchmarks
-
-Performance on standard manipulation benchmarks:
-
-| Benchmark | Fixed Morphology | MorphoLLM | Improvement |
-|-----------|-----------------|-----------|-------------|
-| Multi-Task Assembly | 67.3% | **89.2%** | +32.5% |
-| Precision Insertion | 71.8% | **94.1%** | +31.1% |
-| Fragile Object Handling | 58.4% | **87.6%** | +50.0% |
-| Variable Workspace | 62.1% | **91.3%** | +47.0% |
-
-## 🔬 Novel Contributions
-
-This repository implements the following novel contributions:
-
-1. **Extended Configuration Space** ($\mathcal{C}_{ext}$)
-   - First formal unification of joint and morphology spaces
-   - Rigorous stability analysis for time-varying morphology
-
-2. **L2MT Algorithm**
-   - First method to generate morphology *trajectories* from language
-   - Physics-validated semantic-to-morphology mapping
-
-3. **SM-MPC Framework**
-   - First MPC with morphology as continuous decision variable
-   - Provably stable morphological adaptation
-
-4. **Morphological Stability Theorem**
-   - First theoretical bound on safe morphology adaptation rates
-
-## 📁 Repository Structure
-
-```
 MorphoLLM/
-├── morphollm/              # Main package
-│   ├── core/               # Extended config space, dynamics
-│   ├── algorithms/         # L2MT, SM-MPC implementations
-│   ├── models/             # LLM interface, encoders
-│   ├── physics/            # Differentiable dynamics
-│   ├── simulation/         # Simulation environments
-│   └── utils/              # Utilities and helpers
-├── docs/                   # Documentation
-├── examples/               # Example scripts
-├── tests/                  # Unit and integration tests
-├── scripts/                # Training and evaluation scripts
-└── assets/                 # Figures, videos, models
+├── morphollm/
+│   ├── core/                      # Core data structures
+│   │   ├── morphology_space.py    # Continuous morphology representation
+│   │   ├── task_specification.py  # Task description parsing
+│   │   ├── kinematics.py          # Forward/inverse kinematics
+│   │   └── dynamics.py            # Manipulator dynamics
+│   │
+│   ├── algorithms/                # Main algorithms
+│   │   ├── l2mt.py                # Language-to-Morphology Translation
+│   │   ├── physics_generator.py   # Physics-aware design generation
+│   │   ├── sm_mpc.py              # Shape-Memory MPC controller
+│   │   └── optimization.py        # Morphology optimization
+│   │
+│   ├── models/                    # Neural network models
+│   │   ├── encoder.py             # Task description encoder
+│   │   ├── decoder.py             # Morphology parameter decoder
+│   │   └── physics_net.py         # Physics constraint network
+│   │
+│   ├── physics/                   # Physics simulation
+│   │   └── constraints.py         # Physical constraint checking
+│   │
+│   └── utils/                     # Utilities
+│       ├── visualization.py       # Design visualization
+│       └── validation.py          # Design validation
+│
+├── examples/                      # Usage demonstrations
+│   ├── basic_l2mt_demo.py        # L2MT module demo
+│   ├── sm_mpc_control_demo.py    # SM-MPC controller demo
+│   └── full_pipeline_demo.py     # Complete pipeline demo
+│
+├── tests/                         # Unit tests
+├── docs/                          # Documentation
+└── setup.py                       # Package installation
 ```
 
-## 🤝 Contributing
+---
 
-We welcome contributions! Please see [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
+## 📊 Research Capabilities
 
-```bash
-# Run tests before submitting
-pytest tests/ -v
+### Supported Manipulator Types
 
-# Format code
-black morphollm/
-isort morphollm/
+| Type | DOF Range | Applications |
+|------|-----------|--------------|
+| Serial | 3-7 DOF | Assembly, welding, pick-and-place |
+| SCARA | 4 DOF | High-speed assembly |
+| Delta | 3-4 DOF | Packaging, sorting |
+| Redundant | 7+ DOF | Obstacle avoidance, dexterous manipulation |
 
-# Type checking
-mypy morphollm/
+### Design Optimization Objectives
+
+- **Workspace Maximization:** Expand reachable volume
+- **Manipulability Enhancement:** Improve dexterity metrics
+- **Energy Efficiency:** Minimize power consumption
+- **Precision Optimization:** Maximize positioning accuracy
+
+---
+
+## 🧪 Running Tests (PowerShell)
+
+```powershell
+# Navigate to repository
+cd MorphoLLM
+
+# Activate virtual environment
+.\venv\Scripts\Activate.ps1
+
+# Install test dependencies
+pip install pytest pytest-cov
+
+# Run all tests
+python -m pytest tests/ -v
+
+# Run specific test module
+python -m pytest tests/test_extended_config_space.py -v
+
+# Run with coverage
+python -m pytest tests/ --cov=morphollm --cov-report=html
 ```
 
-## 📄 Citation
+---
+
+## 🔧 Development (PowerShell)
+
+```powershell
+# Clone and setup for development
+git clone https://github.com/hmshujaatzaheer/MorphoLLM.git
+cd MorphoLLM
+python -m venv venv
+.\venv\Scripts\Activate.ps1
+pip install torch
+pip install -e ".[dev]"
+
+# Run linting
+pip install flake8
+python -m flake8 morphollm --select=E9,F63,F7,F82
+
+# Run examples
+python examples/basic_l2mt_demo.py
+python examples/sm_mpc_control_demo.py
+python examples/full_pipeline_demo.py
+```
+
+---
+
+## 📚 Theoretical Foundation
+
+### Morphology Space Representation
+
+```
+ℳ = {α ∈ ℝⁿ : g_kin(α) ≥ 0, g_dyn(α) ≥ 0, g_mfg(α) ≥ 0}
+```
+
+Where:
+- `g_kin(α)` — Kinematic constraints (joint limits, singularities)
+- `g_dyn(α)` — Dynamic constraints (torque limits, stability)
+- `g_mfg(α)` — Manufacturing constraints (standard sizes, assembly)
+
+### L2MT Formulation
+
+```
+α* = argmax_α P(α | T, C)
+   = argmax_α P_LLM(α | T) · P_physics(α | C)
+```
+
+Where `T` is the task description and `C` are physical constraints.
+
+### SM-MPC Optimization
+
+```
+min_{u,Δα} Σₖ₌₀ᴺ [||xₖ - xᵣₑf||²_Q + ||uₖ||²_R + ||Δαₖ||²_S]
+
+s.t.  xₖ₊₁ = f(xₖ, uₖ, αₖ)           (Dynamics)
+      αₖ₊₁ = αₖ + Δαₖ                 (Morphology evolution)
+      h(xₖ, αₖ) ≤ 0                   (State constraints)
+      α ∈ ℳ                           (Feasible morphologies)
+```
+
+---
+
+## 🔗 Related Work
+
+This research addresses gaps in existing approaches:
+
+- **Traditional Design:** Manual, expertise-intensive, non-adaptive
+- **Topology Optimization:** Numerical, lacks semantic understanding
+- **Generative Design:** Often ignores physical realizability
+- **LLM Applications:** Previously unexplored for physical robot design
+
+MorphoLLM bridges language understanding with physically-grounded robot design.
+
+---
+
+## 📖 Citation
 
 If you use MorphoLLM in your research, please cite:
 
 ```bibtex
-@article{zaheer2026morphollm,
-  title={MorphoLLM: Language-Guided Morphological Trajectory Synthesis 
-         for Adaptive Robotic Manipulators},
-  author={Zaheer, H M Shujaat and Hughes, Josie},
-  journal={arXiv preprint arXiv:XXXX.XXXXX},
-  year={2026}
+@misc{zaheer2026morphollm,
+  author       = {Zaheer, H M Shujaat},
+  title        = {MorphoLLM: Language-to-Morphology Translation for 
+                  Generative Robotic Manipulator Design},
+  year         = {2026},
+  publisher    = {GitHub},
+  howpublished = {\url{https://github.com/hmshujaatzaheer/MorphoLLM}},
+  note         = {Open-source framework for LLM-guided robot design}
 }
 ```
 
-## 📜 License
+---
 
-This project is licensed under the MIT License - see [LICENSE](LICENSE) file.
+## 📄 License
 
-## 🙏 Acknowledgments
-
-- EPFL CREATE Lab for the programmable lattice technology
-- Anthropic for Claude API access
-- OpenAI for GPT-4 API access
-- The robotics community for open-source tools
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
 ---
 
-<p align="center">
-  Made with ❤️ at <a href="https://www.epfl.ch/labs/create/">EPFL CREATE Lab</a>
-</p>
+## 👤 Author
 
-<p align="center">
-  <a href="https://github.com/hmshujaatzaheer/MorphoLLM/issues">Report Bug</a> •
-  <a href="https://github.com/hmshujaatzaheer/MorphoLLM/issues">Request Feature</a>
-</p>
+**H M Shujaat Zaheer**
+
+- Research Focus: Generative Robot Design, LLM Applications, AI/ML
+- Email: shujabis@gmail.com
+- GitHub: [@hmshujaatzaheer](https://github.com/hmshujaatzaheer)
+
+---
+
+## 🤝 Contributing
+
+Contributions are welcome! Please see [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
+
+```powershell
+# Fork the repository on GitHub, then:
+git clone https://github.com/YOUR_USERNAME/MorphoLLM.git
+cd MorphoLLM
+git checkout -b feature/your-feature
+# Make changes...
+git add .
+git commit -m "Add your feature"
+git push origin feature/your-feature
+# Create Pull Request on GitHub
+```
+
+---
+
+<div align="center">
+
+**MorphoLLM** — From Language to Robot Morphology
+
+*Democratizing robotic manipulator design through natural language*
+
+⭐ Star this repository if you find it useful for your research!
+
+</div>
